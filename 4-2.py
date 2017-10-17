@@ -37,4 +37,14 @@ for step in range(100):
     sess.run(train_op, feed_dict={X: x_data, Y: y_data})
 
     if (step+1) % 10 == 0:
-        print(step+1, sess.run(cost, feed_dict=))
+        print(step+1, sess.run(cost, feed_dict={X: x_data, Y: y_data}))
+
+prediction = tf.argmax(model, axis=1)
+target = tf.argmax(Y, axis=1)
+print('예측값:', sess.run(prediction, feed_dict={X: x_data}))
+print('실제값:', sess.run(target, feed_dict={Y: y_data}))
+
+is_correct = tf.equal(prediction, target)
+accuracy = tf.reduce_mean(tf.cast(is_correct, tf.float32))
+print('정확도: %.2f' % sess.run(accuracy * 100, feed_dict={X: x_data, Y: y_data}))
+

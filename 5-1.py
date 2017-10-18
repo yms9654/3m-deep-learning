@@ -12,4 +12,30 @@ global_step = tf.Variable(0, trainable=False, name='global_step')
 X = tf.placeholder(tf.float32)
 Y = tf.placeholder(tf.float32)
 
-W1 =
+W1 = tf.Variable(tf.random_uniform([2, 10], -1., 1.))
+L1 = tf.nn.relu(tf.matmul(X, W1))
+
+W2 = tf.Variable(tf.random_uniform([10, 20], -1., 1.))
+L2 = tf.nn.relu(tf.matmul(L1, W2))
+
+W3 = tf.Variable(tf.random_uniform([20, 3], -1., 1.))
+model = tf.matmul(L2, W3)
+
+cost = tf.reduce_mean(
+    tf.nn.softmax_cross_entropy_with_logits(labels=Y, logits=model)
+)
+
+optimizer = tf.train.AdamOptimizer(learning_rate=0.01)
+train_op = optimizer.minimize(cost, global_step=global_step)
+
+sess = tf.Session()
+saver = tf.train.Saver(tf.global_variables())
+
+ckpt = tf.train.get_checkpoint_state('./model')
+if ckpt and tf.train.checkpoint_exists(ckpt.model_checkpoint_path):
+    saver.restore(sess, ckpt.model_checkpoint_path)
+else:
+    sess.run(tf.global_variables_initializer())
+
+for step in range(2):
+    sess.run(train_op, feed_dict={X: x_data})

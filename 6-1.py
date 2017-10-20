@@ -1,4 +1,7 @@
 import tensorflow as tf
+import time
+
+start_time = time.time()
 
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("./mnist/data/", one_hot=True)
@@ -47,3 +50,5 @@ accuracy = tf.reduce_mean(tf.cast(is_correct, tf.float32))
 print('정확도:', sess.run(accuracy,
                        feed_dict={X: mnist.test.images,
                                   Y: mnist.test.labels}))
+
+print('--- %s seconds ---' % (time.time() - start_time))

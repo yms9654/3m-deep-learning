@@ -1,6 +1,10 @@
 import tensorflow as tf
 
 from tensorflow.examples.tutorials.mnist import input_data
+import time
+
+start_time = time.time()
+
 mnist = input_data.read_data_sets("./mnist/data/", one_hot=True)
 
 X = tf.placeholder(tf.float32, [None, 784])
@@ -11,10 +15,12 @@ keep_prob = tf.placeholder(tf.float32)
 W1 = tf.Variable(tf.random_normal([784, 256], stddev=0.01))
 L1 = tf.nn.relu(tf.matmul(X, W1))
 L1 = tf.nn.dropout(L1, keep_prob)
+# tf.layers.batch_normalization(L1, training=False)
 
 W2 = tf.Variable(tf.random_normal([256, 256], stddev=0.01))
 L2 = tf.nn.relu(tf.matmul(L1, W2))
 L2 = tf.nn.dropout(L2, keep_prob)
+# tf.layers.batch_normalization(L2, training=False)
 
 W3 = tf.Variable(tf.random_normal([256, 10], stddev=0.01))
 model = tf.matmul(L2, W3)
@@ -52,3 +58,5 @@ print('정확도:', sess.run(accuracy,
                        feed_dict={X: mnist.test.images,
                                   Y: mnist.test.labels,
                                   keep_prob: 1}))
+
+print('--- %s seconds ---' % (time.time() - start_time))

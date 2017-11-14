@@ -32,7 +32,7 @@ def train():
     saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
 
-    writer = tf.summary.FileWriter('logs', sess,graph)
+    writer = tf.summary.FileWriter('logs', sess.graph)
     summary_merged = tf.summary.merge_all()
 
     brain.update_target_network()

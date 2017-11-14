@@ -62,3 +62,56 @@ class DQN:
             copy_op.append(target_var.assign(main_var.value()))
 
         self.session.run(copy_op)
+
+    def get_action(self):
+        Q_value = self.session.run(self.Q,
+                                   feed_dict={self.input_X: [self.state]})
+
+        action = np.argmax(Q_value[0])
+        return action
+
+    def train(self):
+        state, next_state, action, reward, terminal = self._sample_memory()
+
+        target_Q_value = self.session.run(self.target_Q,
+                                          feed_dice={self.input_X: next_state})
+
+        Y = []
+        for i in range(self.BATCH_SIZE):
+            if terminal[i]:
+                Y.append(reward[i])
+            else:
+                Y.append(reward[i] + self.GAMMA * np.max(target_Q_value[i]))
+
+        self.session.run(self.train_op,
+                         feed_dict={
+                             self.input_X: state,
+                             self.input_A: action,
+                             self.input_Y: Y
+                         })
+
+    def init_state(self, state):
+        state = [state for _ in range(self.STATE_LEN)]
+        self.state = np.stack(state, axis=2)
+
+    def remember(self, state, action, reward, terminal):
+        next_state = np.reshape(state, (self.width, self.height, 1))
+        next_state = np.append(self.state[:, :, 1:], next_state, axis=2)
+
+        self.memory.append(self.state, next_state, action, reward, terminal)
+
+        if len(self.memory) > self.REPLAY_MEMORY:
+            self.memory.popleft()
+
+        self.state = next_state
+
+    def _sample_memory(self):
+        sample_memory = random.sample(self.memory, self.BATCH_SIZE)
+
+        state = [memory[0] for memory in sample_memory]
+        next_state = [memory[1] for memory in sample_memory]
+        action = [memory[2] for memory in sample_memory]
+        reward = [memory[3] for memory in sample_memory]
+        terminal = [memory[4] for memory in sample_memory]
+
+        return state, next_state, action, reward, terminal

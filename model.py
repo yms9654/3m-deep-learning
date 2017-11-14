@@ -74,7 +74,7 @@ class DQN:
         state, next_state, action, reward, terminal = self._sample_memory()
 
         target_Q_value = self.session.run(self.target_Q,
-                                          feed_dice={self.input_X: next_state})
+                                          feed_dict={self.input_X: next_state})
 
         Y = []
         for i in range(self.BATCH_SIZE):
@@ -98,7 +98,7 @@ class DQN:
         next_state = np.reshape(state, (self.width, self.height, 1))
         next_state = np.append(self.state[:, :, 1:], next_state, axis=2)
 
-        self.memory.append(self.state, next_state, action, reward, terminal)
+        self.memory.append((self.state, next_state, action, reward, terminal))
 
         if len(self.memory) > self.REPLAY_MEMORY:
             self.memory.popleft()
